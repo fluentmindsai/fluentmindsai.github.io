@@ -462,7 +462,8 @@
                     <h3 class="text-xl font-bold text-white mb-2">Send us a message</h3>
                     <p class="text-gray-300 text-sm mb-6">We typically respond within 24 hours during business days.</p>
                     
-                    <form id="contactForm" class="space-y-4">
+                    <!-- Updated form with mailto action -->
+                    <form id="contactForm" method="post" action="mailto:fluentmind.ai@gmail.com" enctype="text/plain" class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="firstName" class="text-sm font-medium text-white mb-2 block">First Name</label>
@@ -480,11 +481,12 @@
                         <div>
                             <label for="role" class="text-sm font-medium text-white mb-2 block">I am a...</label>
                             <select name="role" required class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white focus:border-purple-400 focus:outline-none">
-                                <option>Parent/Guardian</option>
-                                <option>Speech-Language Pathologist</option>
-                                <option>Educator</option>
-                                <option>Researcher</option>
-                                <option>Other</option>
+                                <option value="">Please select...</option>
+                                <option value="Parent/Guardian">Parent/Guardian</option>
+                                <option value="Speech-Language Pathologist">Speech-Language Pathologist</option>
+                                <option value="Educator">Educator</option>
+                                <option value="Researcher">Researcher</option>
+                                <option value="Other">Other</option>
                             </select>
                         </div>
                         <div>
@@ -495,6 +497,17 @@
                             Send Message
                         </button>
                     </form>
+                    
+                    <!-- Alternative email service suggestion -->
+                    <div class="mt-4 p-4 bg-slate-600/20 border border-slate-500/30 rounded-lg">
+                        <p class="text-gray-300 text-xs leading-relaxed">
+                            <strong>Note:</strong> For better email delivery, consider using a service like 
+                            <a href="https://formspree.io" target="_blank" class="text-purple-400 hover:text-purple-300">Formspree</a>, 
+                            <a href="https://netlify.com/products/forms/" target="_blank" class="text-purple-400 hover:text-purple-300">Netlify Forms</a>, or 
+                            <a href="https://www.emailjs.com" target="_blank" class="text-purple-400 hover:text-purple-300">EmailJS</a> 
+                            for reliable form submissions.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -555,7 +568,7 @@
             animatedElements.forEach(el => observer.observe(el));
         });
 
-        // Contact form submission
+        // Enhanced contact form submission with mailto fallback
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -563,24 +576,43 @@
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Simulate form submission
+            // Create email content
+            const emailSubject = `FluentMinds Contact Form - ${data.role}`;
+            const emailBody = `Name: ${data.firstName} ${data.lastName}
+Email: ${data.email}
+Role: ${data.role}
+
+Message:
+${data.message}
+
+---
+Sent from FluentMinds contact form`;
+
+            // Create mailto URL
+            const mailtoUrl = `mailto:fluentmind.ai@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            // Update button state
             const button = this.querySelector('button[type="submit"]');
             const originalText = button.textContent;
             
-            button.textContent = 'Sending...';
+            button.textContent = 'Opening email client...';
             button.disabled = true;
             
+            // Open default email client
+            window.location.href = mailtoUrl;
+            
+            // Reset button after a delay
             setTimeout(() => {
-                button.textContent = 'Message Sent!';
+                button.textContent = 'Email Opened!';
                 button.style.background = 'linear-gradient(to right, #10b981, #059669)';
                 
                 setTimeout(() => {
                     button.textContent = originalText;
                     button.disabled = false;
                     button.style.background = '';
-                    this.reset();
-                }, 2000);
-            }, 1500);
+                    // Don't reset form in case user needs to try again
+                }, 3000);
+            }, 1000);
         });
     </script>
 </body>
